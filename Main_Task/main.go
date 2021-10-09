@@ -15,12 +15,14 @@ import (
 var ctx context.Context
 
 func rootRouteHandler(res http.ResponseWriter, r *http.Request) {
-	endpointList := strings.Split(r.URL.Path[8:], "/")
+	endpointList := strings.Split(strings.Trim(r.URL.Path[8:], "/"), "/")
 	fmt.Println(r.Method)
 
 	switch endpointList[0] {
 	case "users":
 		MainUserRouter(res, r, endpointList)
+	case "posts":
+		MainPostsRouter(res, r, endpointList)
 	}
 }
 
@@ -29,7 +31,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// the mongo server connection context works for 10 minutes then times out
 	ctx, _ = context.WithTimeout(context.Background(), 10*time.Minute)
 	err = client.Connect(ctx)
 	if err != nil {
@@ -37,6 +38,7 @@ func main() {
 	}
 
 	InitUserRouteConnection(client)
+	InitPostRouteConnection(client)
 
 	http.HandleFunc("/api/v1/", rootRouteHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))

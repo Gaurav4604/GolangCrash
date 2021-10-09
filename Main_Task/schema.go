@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 )
 
 type User struct {
@@ -16,8 +14,12 @@ type User struct {
 }
 
 type Post struct {
-	Title string `bson:"title,omitempty"`
-	Body  string `bson:"body,omitempty"`
+	ID        string `json:"_id,omitempty" bson:"_id,omitempty"`
+	UserID    string `json:"userID,omitempty" bson:"userID,omitempty"`
+	Caption   string `bson:"caption, omitempty"`
+	Body      string `bson:"body,omitempty"`
+	ImageURL  string `"bson:"imageurl, omitempty`
+	Timestamp string `"bson":timestamp, omitempty`
 }
 
 func (user *User) hashpassword() {
@@ -26,13 +28,4 @@ func (user *User) hashpassword() {
 
 func (user *User) validatePassword(loginPassword string) bool {
 	return string(Decrypt([]byte((*user).Password), "password")) == loginPassword
-}
-
-func JSONError(res http.ResponseWriter, errVal map[string]string, code int) {
-	res.Header().Set("Content-Type", "application/json; charset=utf-8")
-	res.Header().Set("X-Content-Type-Options", "nosniff")
-	res.WriteHeader(code)
-
-	jsonStr, _ := json.Marshal(errVal)
-	res.Write(jsonStr)
 }
