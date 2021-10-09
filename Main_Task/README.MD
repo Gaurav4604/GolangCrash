@@ -16,11 +16,18 @@ Better to open up the URL end points in a API platform such as postman
 
 There are 5 major end points
 
-## Note, if anything except a post request is passed to this route, it will be considered a bad request (response status code 400)
+Link for the example demonstration in postman
+(https://github.com/Gaurav4604/GolangCrash/blob/master/Main_Task/postman_examples.pdf)
+
+## Note, 
 
 
 ```python
 127.0.0.1:8080/api/v1/posts/user/ # this is a POST request, with user data in the request body
+
+"""
+if anything except a post request is passed to this route, it will be considered a bad request (response status code 400)
+"""
 
 example_request_body = 
    {
