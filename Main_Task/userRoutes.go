@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -25,7 +26,9 @@ func userInserthandler(res http.ResponseWriter, r *http.Request) {
 	var user User
 	json.NewDecoder(r.Body).Decode(&user)
 	user.hashpassword()
-	userCollection.InsertOne(ctx, user)
+	result, _ := userCollection.InsertOne(ctx, user)
+
+	user.ID = fmt.Sprint(result.InsertedID)
 	sendUserResponse(res, user)
 }
 
@@ -40,6 +43,7 @@ func getUserhandler(res http.ResponseWriter, r *http.Request, userID string) {
 			"Err": "User not found",
 		}, 404)
 	} else {
+		println(user.ID)
 		sendUserResponse(res, user)
 	}
 }

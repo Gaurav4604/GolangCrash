@@ -40,7 +40,7 @@ func getParticularPost(res http.ResponseWriter, r *http.Request, postID string) 
 	err := postCollection.FindOne(ctx, bson.M{
 		"_id": objectIDS,
 	}).Decode(&post)
-	if err != nil {
+	if err != nil || post == (Post{}) {
 		JSONError(res, map[string]string{
 			"Err": "Post not found",
 		}, 404)
@@ -70,17 +70,20 @@ func getAllPosts(res http.ResponseWriter, r *http.Request, userID string) {
 
 	var posts []Post
 	cursor, err := postCollection.Find(ctx, bson.M{"userID": userID})
+	res.Header().Set("content-type", "application/json")
+
 	if err != nil {
 		JSONError(res, map[string]string{
 			"Err": "Not Found",
 		}, 404)
+		return
 	}
-	if err = cursor.All(ctx, &posts); err != nil {
+	if err = cursor.All(ctx, &posts); err != nil || len(posts) == 0 {
 		JSONError(res, map[string]string{
 			"Err": "Not Found",
 		}, 404)
+		return
 	}
-	res.Header().Set("content-type", "application/json")
 
 	// pagination via cookies and url params
 	pages, _ := strconv.ParseInt(r.URL.Query().Get("pages"), 10, 64)
@@ -95,8 +98,17 @@ func getAllPosts(res http.ResponseWriter, r *http.Request, userID string) {
 					setNewPageLimit(res, fmt.Sprint(currentPage+pages))
 					json.NewEncoder(res).Encode(posts[currentPage:(currentPage + pages)])
 				} else {
-					json.NewEncoder(res).Encode(posts[:currentPage])
+					if currentPage < int64(len(posts)) {
+						setNewPageLimit(res, fmt.Sprint(len(posts)))
+						json.NewEncoder(res).Encode(posts[currentPage:])
+					} else {
+						setNewPageLimit(res, fmt.Sprint(0))
+						json.NewEncoder(res).Encode(map[string]string{
+							"Message": "all pages done, reseting counter",
+						})
+					}
 				}
+				break
 			} else if i == len(r.Cookies())-1 {
 				setNewPageLimit(res, fmt.Sprint(pages))
 				json.NewEncoder(res).Encode(posts[:pages])

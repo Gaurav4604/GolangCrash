@@ -23,6 +23,10 @@ func rootRouteHandler(res http.ResponseWriter, r *http.Request) {
 		MainUserRouter(res, r, endpointList)
 	case "posts":
 		MainPostsRouter(res, r, endpointList)
+	default:
+		JSONError(res, map[string]string{
+			"error": "route not defined",
+		}, 404)
 	}
 }
 
