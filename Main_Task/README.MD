@@ -48,7 +48,7 @@ example_response_body =
 	"Password": ""
     }
   
-# the password is stored in mongodb server, and is encrypted using the MD5 algorithm
+# the encrypted password is stored in mongodb server, and is encrypted using the MD5 algorithm
 # the code for the same is in the file named "encryption.go"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
